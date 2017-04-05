@@ -1,13 +1,13 @@
 import csv
 
 #import files
-nfl_teams_file = open("files/nfl_teams.csv", "r")
+nfl_teams_file = open("nfl_teams.csv", "r")
 nfl_teams_csv = list(csv.DictReader(nfl_teams_file))
 
-zipcode_file = open("files/zipcode_data.csv", "r")
+zipcode_file = open("zipcode_data.csv", "r")
 zipcode_csv = list(csv.DictReader(zipcode_file))
 
-target_cities_file = open("files/target_cities.csv", "r")
+target_cities_file = open("target_cities.csv", "r")
 target_cities_csv = list(csv.DictReader(target_cities_file))
 
 nfl_potential_teams = []
