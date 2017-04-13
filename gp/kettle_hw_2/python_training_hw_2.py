@@ -15,7 +15,9 @@ nfl_potential_teams = []
 DIVISION_MAP = ["NFC North", "NFC South", "NFC East", "NFC West", "AFC North", "AFC South", "AFC East", "AFC West"]
 
 
-#function to perform lookups
+'''Function takes input stream, lookup stream, key, lookup key, and lookup value
+Adds matching lookup value to rows where keys matching
+Returns: stream with lookup values appended'''
 def lookup_value(stream, lookup_stream, key, lookup_key, lookup_value):
 	stream_output = []
 	for row in stream:
@@ -27,15 +29,30 @@ def lookup_value(stream, lookup_stream, key, lookup_key, lookup_value):
 	
 	return stream_output
 
+
+'''Function takes an input stream, single or array of columns, operator as a string,
+single or array of values, and a desired result (bool)
+Returns: new stream that matches filter and desired_result'''
 def filter_stream(stream, column, operator, value, desired_result):
 	criteria_true = []
 	criteria_false = []
 
 	for row in stream:
-		if(row[column] + operator + value):
-			criteria_true.append(row)
-		else:
-			criteria_false.append(row)
+		if operator == "=":
+			if(row[column] == value):
+				criteria_true.append(row)
+			else:
+				criteria_false.append(row)
+		if operator == "<":
+			if(row[column] < value):
+				criteria_true.append(row)
+			else:
+				criteria_false.append(row)
+		if operator == "= and <":
+			if (row[column[0]] == value[0] and row[column[1]] < value[1]):
+				criteria_true.append(row)
+			else:
+				criteria_false.append(row)
 	
 	if(desired_result == True):
 		return criteria_true
@@ -43,6 +60,9 @@ def filter_stream(stream, column, operator, value, desired_result):
 		return criteria_false
 
 
+'''Function takes a stream and fieldname as input
+Converts specified field to an int
+Returns: modified stream'''
 def field_to_int(stream,fieldname):
 	stream_output = []
 	for row in stream:
@@ -51,36 +71,58 @@ def field_to_int(stream,fieldname):
 	return list(stream_output)
 
 
-# zipcode_data = convert_to_list(zipcode_csv)
+'''Input: Array of streams
+Returns: stream where each row has all keys, null for no values'''
+def stream_schema_merge(streams):
+	keys = []
+	full_stream = []
+	output_stream = []
 
-# for row in zipcode_data:
-# 	print "zip: " + row
+	for stream in streams:
+		keys = keys + list(stream[0].keys())
+		full_stream = full_stream + stream
 
+	for row in full_stream:
+		new_row = dict.fromkeys(keys)
+		new_row.update(row)
+		output_stream.append(new_row)
+
+	return output_stream
+
+
+'''Input: data stream, row to sort on'''
+'''Returns: stream sorted on specified row'''
+def sort(stream, sort_column):
+	pass
+
+
+#Map division code to text
 for team in nfl_teams_csv:
-	#convert division to text
 	division_index = int(team['division']) - 1
 	team['division'] = DIVISION_MAP[division_index]
-
-	# if(team['super_bowl_wins'] == 0 and team['team_valuation'] < 2000000000):
-	# 	nfl_potential_teams.append(team)
 	nfl_potential_teams.append(team)
 
 
+nfl_potential_teams = field_to_int(nfl_potential_teams,"team_valuation") #convert 'team_valuation' to int
+nfl_potential_teams = field_to_int(nfl_potential_teams,"super_bowl_wins") #convert 'super_bowl_wins' to int
+zipcode_data = field_to_int(zipcode_csv, 'avg_per_capita_income') #convert 'avg_per_capita_income' to int
 
-nfl_potential_teams = field_to_int(nfl_potential_teams,"team_valuation")
-nfl_potential_teams = field_to_int(nfl_potential_teams,"super_bowl_wins")
+#filter out high-value teams
+nfl_potential_teams = filter_stream(nfl_potential_teams, ['super_bowl_wins', 'team_valuation'], '= and <', [0, 2000000000], True)
 
-zipcode_data = field_to_int(zipcode_csv, 'avg_per_capita_income')
-
+#lookup zipcode data
 nfl_potential_teams = lookup_value(nfl_potential_teams,zipcode_data,'zipcode','zipcode','avg_per_capita_income')
 
-# for team in nfl_potential_teams:
-# 	if(int(team['avg_per_capita_income']) >= 30000):
-# 		nfl_potential_teams.remove(team)
+#filter out high-income cities
+nfl_potential_teams = filter_stream(nfl_potential_teams, 'avg_per_capita_income', '<', 30000, True)
+
+#merge teams and cities
+merged_data = stream_schema_merge([nfl_potential_teams, target_cities_csv])
 
 
-for team in nfl_potential_teams:
-	print team
+for row in merged_data:
+	print row
+
 
 
 
