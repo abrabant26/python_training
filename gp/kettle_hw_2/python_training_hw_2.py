@@ -92,9 +92,35 @@ def stream_schema_merge(streams):
 
 '''Input: data stream, row to sort on'''
 '''Returns: stream sorted on specified row'''
-def sort(stream, sort_column):
-	pass
+def rows_merge_sort(stream, sort_column):
+	stream_copy = stream
+	sort_split(stream, stream_copy, 0, len(stream), sort_column)
 
+def sort_split(stream, stream_copy, ibegin, iend, sort_column):
+	imiddle = int((iend + ibegin) / 2)
+
+
+	if iend - ibegin <= 1:
+		# print stream_copy[ibegin:iend]
+		# print "------------"
+		return None
+
+	sort_split(stream, stream_copy, ibegin, imiddle, sort_column)
+	sort_split(stream, stream_copy, imiddle, iend, sort_column)
+
+	sort_merge(stream, stream_copy, ibegin, imiddle, iend, sort_column)
+
+def sort_merge(stream, stream_copy, ibegin, imiddle, iend, sort_column):
+
+	i = ibegin
+	j = imiddle
+	while(i < iend):
+		print stream[i][sort_column]
+		print stream[j][sort_column]
+
+	if (i < imiddle and (j <= iend or ))
+
+		i += 1
 
 #Map division code to text
 for team in nfl_teams_csv:
@@ -103,8 +129,8 @@ for team in nfl_teams_csv:
 	nfl_potential_teams.append(team)
 
 
-nfl_potential_teams = field_to_int(nfl_potential_teams,"team_valuation") #convert 'team_valuation' to int
-nfl_potential_teams = field_to_int(nfl_potential_teams,"super_bowl_wins") #convert 'super_bowl_wins' to int
+nfl_potential_teams = field_to_int(nfl_potential_teams, "team_valuation") #convert 'team_valuation' to int
+nfl_potential_teams = field_to_int(nfl_potential_teams, "super_bowl_wins") #convert 'super_bowl_wins' to int
 zipcode_data = field_to_int(zipcode_csv, 'avg_per_capita_income') #convert 'avg_per_capita_income' to int
 
 #filter out high-value teams
@@ -119,9 +145,10 @@ nfl_potential_teams = filter_stream(nfl_potential_teams, 'avg_per_capita_income'
 #merge teams and cities
 merged_data = stream_schema_merge([nfl_potential_teams, target_cities_csv])
 
+rows_merge_sort(merged_data, 'avg_per_capita_income')
 
-for row in merged_data:
-	print row
+# for row in merged_data:
+# 	print row
 
 
 
