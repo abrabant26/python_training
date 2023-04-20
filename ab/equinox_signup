@@ -1,0 +1,28 @@
+# attempt at signing up for an equinox class vis the website - got to log in but turns out you can't sign up for classes on the site!
+import urllib
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+
+#access website
+try:
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("detach", True)
+    driver = webdriver.Chrome(options=options)
+    driver.get('https://login.equinox.com/')
+    print("Success")
+except:
+    print("error")	
+
+
+# login
+try:
+    email = driver.find_element(By.NAME, 'email')
+    email.send_keys('abrabant26@gmail.com')
+    pw = driver.find_element(By.NAME, "password")
+    pw.send_keys('Lilredab26!')
+    login = driver.find_element(By.NAME, "submit")
+    login.click()
+    print("entered text")
+except:
+    print("error")
